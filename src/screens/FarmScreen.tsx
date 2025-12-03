@@ -59,7 +59,7 @@ export const FarmScreen: React.FC = () => {
   };
 
   const selectedPlot = selectedPlotIndex !== null ? farmPlots[selectedPlotIndex] : null;
-  const isHarvestable = selectedPlot && selectedPlot.growthStage >= GROWTH_STAGES.HARVESTABLE;
+  const isHarvestable = Boolean(selectedPlot && selectedPlot.growthStage >= GROWTH_STAGES.HARVESTABLE);
 
   return (
     <View style={styles.container}>
@@ -86,7 +86,7 @@ export const FarmScreen: React.FC = () => {
       {/* Seed Selection Modal */}
       <Modal
         visible={showSeedModal}
-        transparent
+        transparent={true}
         animationType="slide"
         onRequestClose={() => {
           setShowSeedModal(false);
@@ -125,7 +125,7 @@ export const FarmScreen: React.FC = () => {
       {/* Action Modal (Water/Harvest) */}
       <Modal
         visible={showActionModal}
-        transparent
+        transparent={true}
         animationType="slide"
         onRequestClose={() => {
           setShowActionModal(false);
@@ -136,7 +136,7 @@ export const FarmScreen: React.FC = () => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Plant Actions</Text>
             
-            {selectedPlot && !selectedPlot.wateredToday && (
+            {selectedPlot && Boolean(selectedPlot.wateredToday === false) && (
               <TouchableOpacity style={styles.actionButton} onPress={handleWater}>
                 <Text style={styles.actionButtonText}>💧 Water</Text>
               </TouchableOpacity>

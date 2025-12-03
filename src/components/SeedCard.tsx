@@ -26,7 +26,7 @@ export const SeedCard: React.FC<SeedCardProps> = ({ seed, onPress, selected = fa
     <TouchableOpacity
       style={[styles.container, selected && styles.selected]}
       onPress={onPress}
-      disabled={!onPress}
+      disabled={onPress === undefined}
     >
       <LinearGradient
         colors={colors}

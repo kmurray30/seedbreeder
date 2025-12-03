@@ -1,11 +1,12 @@
 // App Navigator - sets up navigation structure
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import React from 'react';
+import { Text } from 'react-native';
 import { FarmScreen } from '../screens/FarmScreen';
-import { MiningScreen } from '../screens/MiningScreen';
 import { InventoryScreen } from '../screens/InventoryScreen';
+import { MiningScreen } from '../screens/MiningScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -47,6 +48,6 @@ export const AppNavigator: React.FC = () => {
 };
 
 const TabIcon: React.FC<{ emoji: string; color: string }> = ({ emoji }) => {
-  return <>{emoji}</>;
+  return <Text>{emoji}</Text>;
 };
 

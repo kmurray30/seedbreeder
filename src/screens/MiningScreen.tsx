@@ -11,7 +11,7 @@ export const MiningScreen: React.FC = () => {
 
   const activeExcursion = activeExcursions.length > 0 ? activeExcursions[0] : null;
   const activeBudling = activeBudlings.length > 0 ? activeBudlings[0] : null;
-  const isActive = activeExcursion?.active ?? false;
+  const isActive = Boolean(activeExcursion?.active ?? false);
 
   const handleStartExcursion = (budlingId: string) => {
     startExcursion(budlingId);
@@ -104,7 +104,7 @@ export const MiningScreen: React.FC = () => {
       {/* Budling Selection Modal */}
       <Modal
         visible={showBudlingModal}
-        transparent
+        transparent={true}
         animationType="slide"
         onRequestClose={() => setShowBudlingModal(false)}
       >

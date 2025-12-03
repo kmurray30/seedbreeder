@@ -59,7 +59,8 @@ export const PlotTile: React.FC<PlotTileProps> = ({ plant, onPress, seedClass })
 
   const colors = getGrowthColor(plant.growthStage);
   const isHarvestable = plant.growthStage >= GROWTH_STAGES.HARVESTABLE;
-  const needsWater = !plant.wateredToday;
+  // Ensure wateredToday is boolean (defensive check for React 19 strictness)
+  const needsWater = !Boolean(plant.wateredToday);
 
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>

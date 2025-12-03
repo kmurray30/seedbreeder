@@ -13,13 +13,14 @@
       "android"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.havok693.seedbreeder"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.havok693.seedbreeder"
     }
   }
 }
-

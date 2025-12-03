@@ -1,7 +1,7 @@
 // Main App component
-import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { useGameStore } from './src/store/gameStore';

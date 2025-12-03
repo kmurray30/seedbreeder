@@ -31,6 +31,20 @@ class SaveService {
 
       const state = JSON.parse(jsonValue) as GameState;
       
+      // Normalize boolean values (in case old saves had strings)
+      state.activeExcursions = state.activeExcursions.map(excursion => ({
+        ...excursion,
+        active: Boolean(excursion.active),
+      }));
+      
+      state.farmPlots = state.farmPlots.map(plot => 
+        plot ? {
+          ...plot,
+          wateredToday: Boolean(plot.wateredToday),
+          isPassive: Boolean(plot.isPassive),
+        } : null
+      );
+      
       // Calculate offline progress
       if (state.lastSaveTimestamp) {
         const offlineProgress = timeService.calculateOfflineProgress(state.lastSaveTimestamp);

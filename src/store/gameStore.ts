@@ -27,10 +27,28 @@ interface GameStore extends GameState {
   saveGame: () => Promise<void>;
 }
 
+// Normalize state to ensure all booleans are actual booleans (React 19 strictness)
+const normalizeState = (state: GameState): GameState => {
+  return {
+    ...state,
+    farmPlots: state.farmPlots.map(plot => 
+      plot ? {
+        ...plot,
+        wateredToday: Boolean(plot.wateredToday),
+        isPassive: Boolean(plot.isPassive),
+      } : null
+    ),
+    activeExcursions: state.activeExcursions.map(excursion => ({
+      ...excursion,
+      active: Boolean(excursion.active),
+    })),
+  };
+};
+
 const createInitialState = (): GameState => {
   const starterSeeds = seedService.generateStarterSeeds(4);
   
-  return {
+  const initialState = {
     farmPlots: Array(INITIAL_PLOT_COUNT).fill(null),
     inventory: {
       seeds: starterSeeds,
@@ -45,25 +63,39 @@ const createInitialState = (): GameState => {
     currentDay: 0,
     lastSaveTimestamp: Date.now(),
   };
+  
+  return normalizeState(initialState);
 };
 
-export const useGameStore = create<GameStore>((set, get) => ({
-  ...createInitialState(),
+export const useGameStore = create<GameStore>((set, get) => {
+  // Helper to normalize state before setting
+  const setNormalized = (partial: Partial<GameState>) => {
+    const currentState = get();
+    const mergedState = { ...currentState, ...partial };
+    const normalized = normalizeState(mergedState);
+    set(normalized);
+  };
 
-  // Initialize game (load from save or create new)
-  initialize: async () => {
+  return {
+    ...createInitialState(),
+
+    // Initialize game (load from save or create new)
+    initialize: async () => {
     const savedState = await saveService.loadGameState();
     
     if (savedState) {
       // Initialize time service with saved state
       timeService.initialize(savedState.currentTick, savedState.lastSaveTimestamp);
       
-      set(savedState);
+      // Normalize state to ensure all booleans are actual booleans
+      const normalizedState = normalizeState(savedState);
+      setNormalized(normalizedState);
     } else {
       // Create new game
       const initialState = createInitialState();
       timeService.initialize(initialState.currentTick, initialState.lastSaveTimestamp);
-      set(initialState);
+      // State is already normalized in createInitialState
+      setNormalized(initialState);
       await saveService.saveGameState(initialState);
     }
 
@@ -91,7 +123,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     const updatedInventory = inventoryService.removeSeed(state.inventory, seedId);
 
-    set({
+    setNormalized({
       farmPlots: newPlots,
       inventory: updatedInventory,
     });
@@ -113,7 +145,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const newPlots = [...state.farmPlots];
     newPlots[plotIndex] = wateredPlant;
 
-    set({ farmPlots: newPlots });
+    setNormalized({ farmPlots: newPlots });
     get().saveGame();
   },
 
@@ -148,7 +180,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const newPlots = [...state.farmPlots];
     newPlots[plotIndex] = null;
 
-    set({
+    setNormalized({
       farmPlots: newPlots,
       inventory: fruitResult.inventory,
     });
@@ -175,7 +207,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     const updatedInventory = inventoryService.removeSeed(result.inventory, seedId);
 
-    set({ inventory: updatedInventory });
+    setNormalized({ inventory: updatedInventory });
     get().saveGame();
     return true;
   },
@@ -197,7 +229,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     const excursion = miningService.startExcursion(budlingId);
     
-    set({
+    setNormalized({
       activeExcursions: [excursion],
       activeBudlings: [budling],
     });
@@ -222,7 +254,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     const returnedExcursion = miningService.returnFromExcursion(excursion);
 
-    set({
+    setNormalized({
       activeExcursions: [returnedExcursion],
       activeBudlings: [],
       inventory: itemsResult.inventory,
@@ -244,7 +276,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         plot ? plantService.resetWatering(plot) : null
       );
       
-      set({
+      setNormalized({
         farmPlots: resetPlots,
         currentDay,
       });
@@ -268,20 +300,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (budling) {
         const { updatedExcursion, updatedBudling } = miningService.processTick(excursion, budling);
         
-        set({
+        setNormalized({
           farmPlots: updatedPlots,
           activeExcursions: [updatedExcursion],
           activeBudlings: updatedBudling ? [updatedBudling] : [],
           currentTick,
         });
       } else {
-        set({
+        setNormalized({
           farmPlots: updatedPlots,
           currentTick,
         });
       }
     } else {
-      set({
+      setNormalized({
         farmPlots: updatedPlots,
         currentTick,
       });
@@ -305,5 +337,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const state = get();
     await saveService.saveGameState(state);
   },
-}));
+  };
+});
 
